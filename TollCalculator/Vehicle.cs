@@ -6,8 +6,12 @@ using System.Threading.Tasks;
 
 namespace TollFeeCalculator
 {
+    // I use properties in interface for more simplicity and clarity. Methods normally describes "what something does"
+    // and properties "what something is"
+    // also good practice for a case where data binding is needed
     public interface Vehicle
     {
-        String GetVehicleType();
+        string VehicleType { get; }
+        bool IsTollFree { get; }
     }
 }

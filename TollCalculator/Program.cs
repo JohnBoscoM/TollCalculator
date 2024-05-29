@@ -4,7 +4,7 @@ using TollFeeCalculator;
 TollCalculator tollCalculator = new TollCalculator();
 
 DateTime[] dates = new DateTime[] { DateTime.Today.AddHours(17) };
-Vehicle vehicle = new Car();
+Vehicle vehicle = new Motorbike();
 int fee = tollCalculator.GetTollFee(vehicle, dates);
 
 // Print the result
