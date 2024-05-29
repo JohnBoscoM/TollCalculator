@@ -13,14 +13,27 @@ public class TollCalculator
      * @return - the total toll fee for that day
      */
 
+
+    private static readonly SortedDictionary<TimeSpan, int> TollFeeSchedule = new SortedDictionary<TimeSpan, int>
+{
+    { new TimeSpan(6, 0, 0), 8 },
+    { new TimeSpan(6, 30, 0), 13 },
+    { new TimeSpan(7, 0, 0), 18 },
+    { new TimeSpan(8, 0, 0), 13 },
+    { new TimeSpan(8, 30, 0), 8 },
+    { new TimeSpan(15, 0, 0), 13 },
+    { new TimeSpan(15, 30, 0), 18 },
+    { new TimeSpan(17, 0, 0), 13 },
+    { new TimeSpan(18, 0, 0), 8 }
+};
     public int GetTollFee(Vehicle vehicle, DateTime[] dates)
     {
         DateTime intervalStart = dates[0];
         int totalFee = 0;
         foreach (DateTime date in dates)
         {
-            int nextFee = GetTollFee(date, vehicle);
-            int tempFee = GetTollFee(intervalStart, vehicle);
+            int nextFee = CalculateTollFee(date, vehicle);
+            int tempFee = CalculateTollFee(intervalStart, vehicle);
 
             long diffInMillies = date.Millisecond - intervalStart.Millisecond;
             long minutes = diffInMillies / 1000 / 60;
@@ -52,23 +65,15 @@ public class TollCalculator
                vehicleType.Equals(TollFreeVehicles.Military.ToString());
     }
 
-    public int GetTollFee(DateTime date, Vehicle vehicle)
+    public int CalculateTollFee(DateTime date, Vehicle vehicle)
     {
         if (IsTollFreeDate(date) || IsTollFreeVehicle(vehicle)) return 0;
 
-        int hour = date.Hour;
-        int minute = date.Minute;
+        var time = date.TimeOfDay;
 
-        if (hour == 6 && minute >= 0 && minute <= 29) return 8;
-        else if (hour == 6 && minute >= 30 && minute <= 59) return 13;
-        else if (hour == 7 && minute >= 0 && minute <= 59) return 18;
-        else if (hour == 8 && minute >= 0 && minute <= 29) return 13;
-        else if (hour >= 8 && hour <= 14 && minute >= 30 && minute <= 59) return 8;
-        else if (hour == 15 && minute >= 0 && minute <= 29) return 13;
-        else if (hour == 15 && minute >= 0 || hour == 16 && minute <= 59) return 18;
-        else if (hour == 17 && minute >= 0 && minute <= 59) return 13;
-        else if (hour == 18 && minute >= 0 && minute <= 29) return 8;
-        else return 0;
+        var fee = TollFeeSchedule.LastOrDefault(x => time >= x.Key).Value;
+
+        return fee;
     }
 
     private Boolean IsTollFreeDate(DateTime date)
