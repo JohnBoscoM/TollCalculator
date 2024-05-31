@@ -48,5 +48,52 @@ namespace TollFeeCalculator.Tests
 
             Assert.Equal(18, fee);
         }
+
+        [Fact]
+        public void MultiplePassagesWithinOneHour_ShouldReturnHighestFee()
+        {
+            Vehicle vehicle = new Car();
+            DateTime[] dates = {
+                DateTime.Today.AddHours(6).AddMinutes(20), 
+                DateTime.Today.AddHours(6).AddMinutes(45)  
+            };
+
+            int fee = _tollCalculator.GetTollFee(vehicle, dates);
+
+            Assert.Equal(13, fee);
+        }
+
+        [Fact]
+        public void MultiplePassagesOverOneHour_ShouldReturnSumOfFees()
+        {
+            Vehicle vehicle = new Car();
+            DateTime[] dates = {
+                DateTime.Today.AddHours(6).AddMinutes(20), 
+                DateTime.Today.AddHours(7).AddMinutes(30) 
+            };
+
+            int fee = _tollCalculator.GetTollFee(vehicle, dates);
+
+            Assert.Equal(26, fee);
+        }
+
+        [Fact]
+        public void DailyFee_ShouldNotExceedMaxFeePerDay()
+        {
+            const int maxFeePerDay = 60;
+            Vehicle vehicle = new Car();
+            DateTime[] dates = {
+                DateTime.Today.AddHours(6).AddMinutes(0), 
+                DateTime.Today.AddHours(7).AddMinutes(0),  
+                DateTime.Today.AddHours(8).AddMinutes(0),  
+                DateTime.Today.AddHours(15).AddMinutes(0), 
+                DateTime.Today.AddHours(15).AddMinutes(30), 
+                DateTime.Today.AddHours(17).AddMinutes(0)  
+            };
+
+            int fee = _tollCalculator.GetTollFee(vehicle, dates);
+
+            Assert.Equal(maxFeePerDay, fee);
+        }
     }
 }
