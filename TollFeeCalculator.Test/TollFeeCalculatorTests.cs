@@ -37,5 +37,16 @@ namespace TollFeeCalculator.Tests
 
             Assert.Equal(0, fee);
         }
+
+        [Fact]
+        public void SinglePassage_ShouldReturnCorrectFee()
+        {
+            Vehicle vehicle = new Car();
+            DateTime[] dates = { DateTime.Today.AddHours(7) }; 
+
+            int fee = _tollCalculator.GetTollFee(vehicle, dates);
+
+            Assert.Equal(18, fee);
+        }
     }
 }
