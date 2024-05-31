@@ -1,14 +1,20 @@
-﻿// See https://aka.ms/new-console-template for more information
-using TollFeeCalculator;
+﻿using TollFeeCalculator;
 
 ITollFeeSchedule tollFeeSchedule = new TollFeeSchedule();
 ITollFreeDate tollFreeDate = new TollFreeDate();
 
 TollCalculator tollCalculator = new TollCalculator(tollFreeDate,tollFeeSchedule);
 
-DateTime[] dates = new DateTime[] {new DateTime(year: 2022, month: 12, day: 24).AddHours(16) };
+DateTime[] dates =
+{
+    DateTime.Today.AddHours(6).AddMinutes(20),
+    DateTime.Today.AddHours(6).AddMinutes(45),
+    DateTime.Today.AddHours(15).AddMinutes(05),
+    DateTime.Today.AddHours(15).AddMinutes(40),
+    DateTime.Today.AddHours(18),
+    DateTime.Today.AddHours(18).AddMinutes(40),
+};
 Vehicle vehicle = new Car();
 int fee = tollCalculator.GetTollFee(vehicle, dates);
 
-// Print the result
 Console.WriteLine($"The toll fee is: {fee}");

@@ -18,40 +18,45 @@ namespace TollFeeCalculator
 
         public int GetTollFee(Vehicle vehicle, DateTime[] dates)
         {
+            const int maxMinutesBetween = 60;
+            if (vehicle.IsTollFree)
+            {
+                return 0;
+            }
+
             DateTime intervalStart = dates[0];
             int totalFee = 0;
-            foreach (DateTime date in dates)
+            int maxFeeInInterval = 0;
+
+            foreach (var date in dates)
             {
-                int nextFee = CalculateTollFee(date, vehicle);
-                int tempFee = CalculateTollFee(intervalStart, vehicle);
-
-                long diffInMillies = date.Millisecond - intervalStart.Millisecond;
-                long minutes = diffInMillies / 1000 / 60;
-
-                if (minutes <= 60)
-                {
-                    if (totalFee > 0) totalFee -= tempFee;
-                    if (nextFee >= tempFee) tempFee = nextFee;
-                    totalFee += tempFee;
+                if (_tollFreeDate.IsTollFreeDate(date))
+                { 
+                    return 0;
                 }
-                else
-                {
-                    totalFee += nextFee;
-                }
+                    int nextFee = CalculateTollFee(date, vehicle);
+                    double minutesBetween = (date - intervalStart).TotalMinutes;
+
+                    if (minutesBetween <= maxMinutesBetween)
+                    {
+                        maxFeeInInterval = Math.Max(maxFeeInInterval, nextFee);
+                    }
+                    else
+                    {
+                        totalFee += maxFeeInInterval;
+                        maxFeeInInterval = nextFee;
+                        intervalStart = date;
+                    }
+                
             }
-            if (totalFee > 60) totalFee = 60;
-            return totalFee;
+
+            totalFee += maxFeeInInterval;
+            return Math.Min(totalFee, 60);
         }
 
         private int CalculateTollFee(DateTime date, Vehicle vehicle)
-        {
-            if(_tollFreeDate.IsTollFreeDate(date) || vehicle.IsTollFree)
-
-                return 0;
-           
+        {          
             return _tollFeeSchedule.CalculateTollFee(date);
         }
-
-
     }
 }
