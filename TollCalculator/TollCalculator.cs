@@ -19,6 +19,7 @@ namespace TollFeeCalculator
         public int GetTollFee(Vehicle vehicle, DateTime[] dates)
         {
             const int maxMinutesBetween = 60;
+            const int maxTotalFeePerDay = 60;
             if (vehicle.IsTollFree)
             {
                 return 0;
@@ -51,7 +52,7 @@ namespace TollFeeCalculator
             }
 
             totalFee += maxFeeInInterval;
-            return Math.Min(totalFee, 60);
+            return Math.Min(totalFee, maxTotalFeePerDay);
         }
 
         private int CalculateTollFee(DateTime date, Vehicle vehicle)
