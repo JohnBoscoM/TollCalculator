@@ -1,19 +1,19 @@
 using System;
 using Xunit;
 using TollFeeCalculator;
-using System.Runtime.ConstrainedExecution;
+using Moq;
 
 namespace TollFeeCalculator.Tests
 {
     public class TollCalculatorTests
     {
-        private readonly ITollFeeSchedule _tollFeeSchedule = new TollFeeSchedule();
-        private readonly ITollFreeDate _tollFreeDate = new TollFreeDate();
+        private readonly Mock<ITollFeeSchedule> _tollFeeSchedule = new Mock<ITollFeeSchedule>();
+        private readonly Mock<ITollFreeDate> _tollFreeDate = new Mock<ITollFreeDate>();
         private readonly TollCalculator _tollCalculator;
 
         public TollCalculatorTests()
         {
-            _tollCalculator = new TollCalculator(_tollFreeDate, _tollFeeSchedule);
+            _tollCalculator = new TollCalculator(_tollFreeDate.Object, _tollFeeSchedule.Object);
         }
 
         [Fact]
@@ -21,6 +21,8 @@ namespace TollFeeCalculator.Tests
         {
             Vehicle vehicle = new Motorbike();
             DateTime[] dates = { DateTime.Today.AddHours(7) };
+
+            _tollFeeSchedule.Setup(x => x.CalculateTollFee(It.IsAny<DateTime>())).Returns(0);
 
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
@@ -33,6 +35,8 @@ namespace TollFeeCalculator.Tests
             Vehicle vehicle = new Car();
             DateTime[] dates = { new DateTime(2024, 1, 1, 7, 0, 0) };
 
+            _tollFreeDate.Setup(x => x.IsTollFreeDate(It.IsAny<DateTime>())).Returns(true);
+
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
             Assert.Equal(0, fee);
@@ -42,7 +46,9 @@ namespace TollFeeCalculator.Tests
         public void SinglePassage_ShouldReturnCorrectFee()
         {
             Vehicle vehicle = new Car();
-            DateTime[] dates = { DateTime.Today.AddHours(7) }; 
+            DateTime[] dates = { DateTime.Today.AddHours(7) };
+
+            _tollFeeSchedule.Setup(x => x.CalculateTollFee(It.IsAny<DateTime>())).Returns(18);
 
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
@@ -58,6 +64,8 @@ namespace TollFeeCalculator.Tests
                 DateTime.Today.AddHours(6).AddMinutes(45)  
             };
 
+            _tollFeeSchedule.Setup(x => x.CalculateTollFee(It.IsAny<DateTime>())).Returns(13);
+
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
             Assert.Equal(13, fee);
@@ -71,6 +79,8 @@ namespace TollFeeCalculator.Tests
                 DateTime.Today.AddHours(6).AddMinutes(20), 
                 DateTime.Today.AddHours(7).AddMinutes(30) 
             };
+
+            _tollFeeSchedule.Setup(x => x.CalculateTollFee(It.IsAny<DateTime>())).Returns(13);
 
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
@@ -90,6 +100,8 @@ namespace TollFeeCalculator.Tests
                 DateTime.Today.AddHours(15).AddMinutes(30), 
                 DateTime.Today.AddHours(17).AddMinutes(0)  
             };
+
+            _tollFeeSchedule.Setup(x => x.CalculateTollFee(It.IsAny<DateTime>())).Returns(15);
 
             int fee = _tollCalculator.GetTollFee(vehicle, dates);
 
