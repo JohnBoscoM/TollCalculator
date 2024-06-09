@@ -31,23 +31,19 @@ namespace TollFeeCalculator
 
             foreach (var date in dates)
             {
-                if (_tollFreeDate.IsTollFreeDate(date))
-                { 
-                    return 0;
-                }
-                    int nextFee = CalculateTollFee(date, vehicle);
-                    double minutesBetween = (date - intervalStart).TotalMinutes;
+                int nextFee = CalculateTollFee(date, vehicle);
+                double minutesBetween = (date - intervalStart).TotalMinutes;
 
-                    if (minutesBetween <= maxMinutesBetween)
-                    {
-                        maxFeeInInterval = Math.Max(maxFeeInInterval, nextFee);
-                    }
-                    else
-                    {
-                        totalFee += maxFeeInInterval;
-                        maxFeeInInterval = nextFee;
-                        intervalStart = date;
-                    }
+                if (minutesBetween <= maxMinutesBetween)
+                {
+                    maxFeeInInterval = Math.Max(maxFeeInInterval, nextFee);
+                }
+                else
+                {
+                    totalFee += maxFeeInInterval;
+                    maxFeeInInterval = nextFee;
+                    intervalStart = date;
+                }
                 
             }
 
@@ -57,6 +53,9 @@ namespace TollFeeCalculator
 
         private int CalculateTollFee(DateTime date, Vehicle vehicle)
         {          
+           if(_tollFreeDate.IsTollFreeDate(date))
+                return 0;
+
             return _tollFeeSchedule.CalculateTollFee(date);
         }
     }
